@@ -1,0 +1,3 @@
+export PATH=$PATH:/home/peti/.local/bin
+mopidy -q &
+export SUDO_ASKPASS="$HOME/.local/bin/dpass"

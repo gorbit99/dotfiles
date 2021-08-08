@@ -1,0 +1,6 @@
+polybar -r mainbar &
+
+picom --backend glx -b --mark-wmwin-focused --vsync \
+    --detect-transient --blur-method box --experimental-backends --blur-size 7 \
+    --blur-background --xrender-sync-fence  --xrender-sync-fence \
+    --blur-background-exclude "class_g='slop'" &

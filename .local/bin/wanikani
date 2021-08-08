@@ -1,0 +1,21 @@
+#!/bin/sh
+
+url='https://api.wanikani.com/v2/summary'
+apitoken='ad31dba3-17db-4978-9233-fdd9b8546103'
+
+response=$(curl -s "$url" -H "Authorization: Bearer $apitoken");
+
+time='now | localtime | mktime'
+check='if .available_at | sub("(?<time>.*)\\..*Z";"\(.time)Z")'
+check="$check | fromdate < (now | gmtime | mktime)"
+check="$check then .subject_ids else [] end | .[]"
+
+lessons=$(echo "$response" |
+    jq ".data.lessons[] | $check" |
+    wc -l)
+
+reviews=$(echo "$response" |
+    jq ".data.reviews[] | $check" |
+    wc -l)
+
+echo "L $lessons R $reviews"

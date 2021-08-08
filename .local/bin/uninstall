@@ -1,0 +1,3 @@
+#!/bin/sh
+
+yay -Qe | cut -f 1 -d " " | dmenu -l 10 | xargs -r yay -Rs --noconfirm --noprogressbar

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+export FrameworkPathOverride=~/.cache/omnisharp-vim/omnisharp-roslyn/lib/mono/4.5
+TERM="alacritty"
+
+if nvr --serverlist | grep -q Unity3d
+then
+    nvr --servername Unity3d --remote-silent "$1" -c "+call cursor($2, $3)" 
+else
+    $TERM -e nvr --servername Unity3d "$1" -c "+call cursor($2, $3)" --
+fi

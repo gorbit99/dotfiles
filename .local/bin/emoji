@@ -1,0 +1,15 @@
+#!/bin/sh
+
+emoji=$(dmenu -l 10 -i -f < /home/peti/.local/bin/data/emoji.txt | cut -f 1 -d " ")
+
+if [ -z "$emoji" ]
+then
+    exit
+fi
+
+if [ $# -eq 1 ]
+then
+    printf "%s" "$emoji" | xclip -se c
+else
+    echo "$emoji" | xargs xdotool type
+fi

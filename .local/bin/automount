@@ -1,0 +1,37 @@
+#!/bin/sh
+
+device=$(lsblk -o KNAME,MOUNTPOINTS,TYPE -n |
+        grep part |
+        grep -v -P "\/|\[" |
+        cut -f 1 -d " " |
+        dmenu)
+
+if [ -z "$device" ] 
+then
+    exit 0
+fi
+
+name=$(find /media -maxdepth 1 -type d -printf '%f\n' | dmenu)
+
+if [ -z "$name" ] 
+then
+    exit 0
+fi
+
+sudo -A mkdir "/media/$name" 2>/dev/null
+
+
+if sudo -A mount \
+    "/dev/$device" "/media/$name" \
+    -o uid="$(whoami)" -o gid="$(id -gn)"
+then
+    notify-send \
+        "/dev/$device Mounted successfully!" \
+        -i "$HOME/.local/bin/data/icons/harddisk64.png" \
+        -t 2000 -a "automount"
+else
+    notify-send \
+        "Failed to mount!" \
+        -i "$HOME/.local/bin/data/icons/harddisk64.png" \
+        -t 2000 -a "automount"
+fi

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+name=$(lsblk -n -o MOUNTPOINTS | grep -vP "\[" | grep /media | dmenu)
+
+if [ -z "$name" ]
+then
+    exit 0
+fi
+
+if sudo -A umount "$name"
+then
+    notify-send \
+        "$name Unmounted successfully!" \
+        -i "$HOME/.local/bin/data/icons/harddisk64.png" \
+        -t 2000 -a "automount"
+else
+    notify-send \
+        "Failed to unmount!" \
+        -i "$HOME/.local/bin/data/icons/harddisk64.png" \
+        -t 2000 -a "automount"
+fi

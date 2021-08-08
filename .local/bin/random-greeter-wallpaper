@@ -1,0 +1,7 @@
+#!/bin/sh
+
+datapath="/home/peti/.local/bin/data"
+
+file=$(find "$datapath/wallpapers/" -type f | sort -R | tail -n 1)
+
+ln -sf "$file" "$datapath/greeterwp.jpg"

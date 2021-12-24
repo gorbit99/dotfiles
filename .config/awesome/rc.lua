@@ -48,7 +48,7 @@ end
 beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "alacritty"
+terminal = "kitty"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -321,7 +321,10 @@ globalkeys = gears.table.join(
     awful.key({ "Control" }, "XF86AudioLowerVolume", function() awful.spawn("songcontrol volume -5") end,
               {description = "Lower Volume", group = "audio_control"}),
 
-    awful.key({  }, "XF86AudioPlay", function() awful.spawn("songcontrol toggle") end,
+    awful.key({  }, "XF86AudioPlay", function() awful.spawn("songcontrol toggle random on") end,
+              {description = "Toggle Song Playback", group = "audio_control"}),
+
+    awful.key({ "Shift" }, "XF86AudioPlay", function() awful.spawn("songcontrol toggle random off") end,
               {description = "Toggle Song Playback", group = "audio_control"}),
 
     awful.key({ "Control" }, "XF86AudioPlay", function() awful.spawn("songcontrol clear") end,
@@ -340,10 +343,13 @@ globalkeys = gears.table.join(
 
     -- Utils
 
-    awful.key({  }, "Print", function() awful.spawn([[sh -c 'maim -s /dev/stdout --format png | xclip -se c -t image/png -i']]) end,
+    awful.key({  }, "Print", function() awful.spawn([[sh -c 'maim -s /dev/stdout -f png -u -n 1 | xclip -se c -t image/png -i']]) end,
               {description = "Take screenshot", group = "utils"}),
     
     awful.key({ modkey, "Control" }, "l", function() awful.spawn("dm-tool lock") end,
+              {description = "Lock Screen", group = "utils"}),
+
+    awful.key({ modkey, "Shift" }, "s", function() awful.spawn("systemctl suspend") end,
               {description = "Lock Screen", group = "utils"}),
 
     awful.key({ modkey }, "e", function() awful.spawn("emoji") end,

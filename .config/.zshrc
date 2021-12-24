@@ -6,7 +6,7 @@ prompt bart
 # PATH
 typeset -U PATH path
 path=("$HOME/.local/bin" "$HOME/.gem/ruby/3.0.0/bin" "$HOME/.cargo/bin"
-    "$path[@]")
+    "$path[@]" "/Projects/Contrib/dmenumoji/dmenu")
 export PATH
 
 autoload -Uz compinit
@@ -50,3 +50,11 @@ export SUDO_ASKPASS=/home/peti/.local/bin/dpass
 source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 alias config='git --git-dir=/home/peti/.config/dotfiles --work-tree=/home/peti'
+
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.config/.zsh_history
+
+autoload -U select-word-style
+select-word-style bash
+export WORDCHARS='.-'

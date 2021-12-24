@@ -1,5 +1,4 @@
 #!/bin/sh
-mpc random on
 mpc repeat on
 
 if [ "$1" = "search" ]
@@ -19,6 +18,19 @@ then
 elif [ "$1" = "volume" ]
 then
     mpc volume "$2"
+elif [ "$1" = "toggle" ]
+then
+    if [ ! "$(mpc queued)" ]
+    then
+        if [ "$2" = "random" ]
+        then
+            mpc random "$3"
+        fi
+
+        mpc lsplaylists | dmenu | xargs -r mpc load
+    fi
+
+    mpc toggle
 else
     if [ ! "$(mpc queued)" ]
     then
@@ -31,5 +43,7 @@ else
     fi
 
     mpc "$1"
+
+
 fi
 

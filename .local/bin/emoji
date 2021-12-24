@@ -1,6 +1,6 @@
 #!/bin/sh
 
-emoji=$(dmenu -l 10 -i -f < /home/peti/.local/bin/data/emoji.txt | cut -f 1 -d " ")
+emoji=$(dmenu -l 10 -i -f -fn twemoji.ttf < /home/peti/.local/bin/data/emoji.txt | cut -f 1 -d " ")
 
 if [ -z "$emoji" ]
 then

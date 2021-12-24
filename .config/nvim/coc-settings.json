@@ -1,14 +1,15 @@
 {
-    "suggest.noselect": false,
-    "coc.preferences.formatOnSaveFiletypes": [
-        "c",
-        "cpp",
-        "vim",
-        "rust",
-        "typescript",
-        "html",
-        "js",
-        "ruby"
+  "suggest.noselect": false,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "vim",
+    "rust",
+    "typescript",
+    "html",
+    "html.handlebars",
+    "javascript",
+    "css",
+    "markdown",
+    "ruby"
     ],
     "coc.preferences.promptInput": true,
     "coc.preferences.enableFloatHighlight": true,
@@ -18,7 +19,7 @@
     "highlight.document.enable": false,
 
     "emmet.excludeLanguages": [
-        "eruby"
+      "eruby"
     ],
 
     "solargraph.formatting": true,
@@ -29,34 +30,41 @@
 
     "eslint.run": "onType",
     "eslint.probe": [
-        "javascript",
-        "javascriptreact",
-        "typescript",
-        "typescriptreact",
-        "html",
-        "vue",
-        "markdown"
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+      "html",
+      "vue",
+      "markdown"
     ],
     "eslint.autoFixOnSave": true,
-    "eslint.format.enable": true,
+    "eslint.format.enable": false,
     "eslint.codeActionsOnSave.mode": "all",
     "eslint.alwaysShowStatus": true,
     "eslint.codeAction.showDocumentation": {
-        "enable": true
+      "enable": true
     },
     "eslint.codeAction.disableRuleComment": {
-        "enable": true,
-        "location": "separateLine"
+      "enable": true,
+      "location": "separateLine"
     },
     "eslint.workingDirectories": ["."],
 
     "snippets.ultisnips.directories": [
-        "UltiSnips",
-        "UnitySnippets"
+      "UltiSnips",
+      "UnitySnippets"
     ],
+    "tsserver.formatOnType": false,
+    "prettier.eslintIntegration": false,
+    "prettier.formatterPriority": 1000000,
 
-    "coc.source.OmniSharp.enable": true,
-    "coc.source.OmniSharp.triggerCharacters": [
-        "."
-    ]
+    "stylelintplus.autoFixOnSave": true,
+    "stylelintplus.autoFixOnFormat": true,
+
+    "rust-analyzer.procMacro.enable": true,
+
+    "list.source.bibtex.files": ["/Projects/School/Latex/hf/refs.bib"],
+
+    "pairs.disableLanguages": ["brainfuck"]
 }

@@ -50,6 +50,7 @@ export SUDO_ASKPASS=/home/peti/.local/bin/dpass
 source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
 alias config='git --git-dir=/home/peti/.config/dotfiles --work-tree=/home/peti'
+alias ls="ls --color=auto"
 
 HISTSIZE=1000
 SAVEHIST=1000

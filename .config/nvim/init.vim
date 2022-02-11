@@ -53,7 +53,3 @@ augroup lsp
     autocmd BufWritePre *.js,*.php,*.lua lua vim.lsp.buf.formatting_seq_sync()
     autocmd BufWritePre *.ts,*.js :EslintFixAll
 augroup END
-
-augroup rust
-    autocmd BufRead Cargo.toml call crates#toggle()
-augroup END

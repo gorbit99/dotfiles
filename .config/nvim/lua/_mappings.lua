@@ -1,21 +1,21 @@
 vim.g.mapleader = " "
+local vimp = require'vimp'
 
 -- VIMRC
 
-vim.api.nvim_set_keymap('n', '<leader>rc', ':source ~/.config/nvim/init.vim<CR>',
-    {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<leader>orc', ':sp ~/.config/nvim/init.vim<CR>',
-    {noremap = true, silent = true})
+vimp.nnoremap({'silent'}, '<leader>rc',  ':source ~/.config/nvim/init.vim<CR>');
 
 -- TERMINAL
 
-vim.api.nvim_set_keymap('n', '<c-x><c-l>', ':set scrollback=1 | sleep 100m | set scrollback=10000<cr>',
-    {noremap = true, silent = true})
+vimp.nnoremap({'silent'}, '<C-x><C-l>', ':set scrollback=1 | sleep 100m | set scrollback=10000<cr>');
 
-vim.api.nvim_set_keymap('t', '<c-x><c-l>', '<c-\\><c-n><c-w><c-l>i<c-l>',
-    {noremap = true, silent = true})
+vimp.tnoremap({'silent'}, '<C-x><C-l>', '<c-\\><c-n><c-w><c-l>i<c-l>');
 
--- TODOLOCLIST
+-- TELESCOPE
 
-vim.api.nvim_set_keymap('n', '<leader>tl', ':TodoLocList<CR>',
-    {noremap = true, silent = true})
+local telescope_builtins = require'telescope.builtin'
+
+vimp.nnoremap({'silent'}, '<leader>orc', function ()
+  telescope_builtins.find_files({cwd="~/.config/nvim/"})
+end)
+

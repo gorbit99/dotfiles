@@ -1,49 +1,27 @@
 #!/bin/sh
-mpc repeat on
 
-if [ "$1" = "search" ]
-then
-    type=$(printf "album\ntrack" | dmenu -p "Type:")
-    if [ -z "$type" ]
-    then
-        exit
-    fi
+dir=$(cd -- "$(dirname -- "$0")" && pwd)
 
-    echo "" | dmenu -p "Search:" | xargs -r -I {} mpc search any "{}" | grep "$type" | mpc add
-
-    if [ "$(mpc | wc -l)" -eq 1 ]
-    then
-        mpc play
-    fi
-elif [ "$1" = "volume" ]
-then
-    mpc volume "$2"
-elif [ "$1" = "toggle" ]
-then
-    if [ ! "$(mpc queued)" ]
-    then
-        if [ "$2" = "random" ]
-        then
-            mpc random "$3"
-        fi
-
-        mpc lsplaylists | dmenu | xargs -r mpc load
-    fi
-
-    mpc toggle
-else
-    if [ ! "$(mpc queued)" ]
-    then
-        mpc lsplaylists | dmenu | xargs -r mpc load
-    fi
-
-    if [ ! "$1" ]
-    then
-        exit 0
-    fi
-
-    mpc "$1"
-
-
-fi
-
+case "$1" in
+    play)
+        "$dir"/mopidycontrol/PlayToggle
+        ;;
+    playorload)
+        "$dir"/mopidycontrol/PlayOrLoad
+        ;;
+    stop)
+        "$dir"/mopidycontrol/Stop
+        ;;
+    next)
+        "$dir"/mopidycontrol/Next
+        ;;
+    prev)
+        "$dir"/mopidycontrol/Prev
+        ;;
+    loadplaylist)
+        "$dir"/mopidycontrol/LoadPlaylists
+        ;;
+    toggleshuffle)
+        "$dir"/mopidycontrol/Shuffle
+        ;;
+esac

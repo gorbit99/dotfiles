@@ -18,4 +18,6 @@ reviews=$(echo "$response" |
     jq ".data.reviews[] | $check" |
     wc -l)
 
-echo "L $lessons R $reviews"
+wktext="WK"
+
+echo "$wktext L $lessons R $reviews"

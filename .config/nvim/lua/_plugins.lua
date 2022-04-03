@@ -60,4 +60,5 @@ return require('packer').startup(function(use)
   use 'ap/vim-css-color'
   use 'AndrewRadev/tagalong.vim'
   use 'igankevich/mesonic'
+  use 'svermeulen/vimpeccable'
 end)

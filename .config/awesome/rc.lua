@@ -2,6 +2,11 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
+local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
+local todo_widget = require("awesome-wm-widgets.todo-widget.todo")
+local cpu_widget = require("awesome-wm-widgets.cpu-widget.cpu-widget")
+local ram_widget = require("awesome-wm-widgets.ram-widget.ram-widget")
+
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
@@ -46,6 +51,7 @@ end
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+beautiful.font = "Jetbrains Mono NL 11"
 
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
@@ -61,19 +67,19 @@ modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
+    awful.layout.suit.spiral.dwindle,
+    awful.layout.suit.floating,
     awful.layout.suit.tile,
-    awful.layout.suit.spiral,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
     awful.layout.suit.fair,
     awful.layout.suit.fair.horizontal,
-    awful.layout.suit.spiral.dwindle,
+    awful.layout.suit.spiral,
     awful.layout.suit.max,
     awful.layout.suit.max.fullscreen,
     awful.layout.suit.magnifier,
     awful.layout.suit.corner.nw,
-    awful.layout.suit.floating,
     -- awful.layout.suit.corner.ne,
     -- awful.layout.suit.corner.sw,
     -- awful.layout.suit.corner.se,
@@ -95,15 +101,14 @@ mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesom
                                   }
                         })
 
-mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon })
+mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
+                                     menu = mymainmenu })
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
-
 -- {{{ Wibar
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
@@ -126,28 +131,6 @@ local taglist_buttons = gears.table.join(
                     awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
                 )
 
-local tasklist_buttons = gears.table.join(
-                     awful.button({ }, 1, function (c)
-                                              if c == client.focus then
-                                                  c.minimized = true
-                                              else
-                                                  c:emit_signal(
-                                                      "request::activate",
-                                                      "tasklist",
-                                                      {raise = true}
-                                                  )
-                                              end
-                                          end),
-                     awful.button({ }, 3, function()
-                                              awful.menu.client_list({ theme = { width = 250 } })
-                                          end),
-                     awful.button({ }, 4, function ()
-                                              awful.client.focus.byidx(1)
-                                          end),
-                     awful.button({ }, 5, function ()
-                                              awful.client.focus.byidx(-1)
-                                          end))
-
 local function set_wallpaper(s)
     -- Wallpaper
     if beautiful.wallpaper then
@@ -163,15 +146,23 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
+local song_widget, song_timer = awful.widget.watch("songdisplay", 15);
+local wk_widget = awful.widget.watch("wanikani", 60, function(widget, stdout)
+        widget.markup = stdout
+    end)
+wk_widget:buttons(gears.table.join(
+    awful.button({}, 1, function ()
+        awful.spawn("mimeo https://wanikani.com")
+    end)
+    ))
+
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "", "", "", "4", "", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    awful.tag({ "", "", "", "4", "", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
-    -- Create a promptbox for each screen
-    s.mypromptbox = awful.widget.prompt()
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     s.mylayoutbox = awful.widget.layoutbox(s)
@@ -184,14 +175,175 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons
+        buttons = taglist_buttons,
+        style = {
+          shape = gears.shape.octogon,
+          spacing = 2,
+          bg_empty = "#333",
+          bg_occupied = "#111",
+          bg_focus = "#223",
+          squares_sel = "",
+          squares_unsel = "",
+        },
+
+        widget_template = {
+          {
+              {
+                  id     = 'text_role',
+                  widget = wibox.widget.textbox,
+              },
+              left  = 10,
+              right = 10,
+              widget = wibox.container.margin
+          },
+          id     = 'background_role',
+          widget = wibox.container.background,
+          -- Add support for hover colors and an index label
+          create_callback = function(self, c3, index, objects) --luacheck: no unused args
+              self:connect_signal('mouse::enter', function()
+                  if self.bg ~= '#220000' then
+                      self.backup     = self.bg
+                      self.has_backup = true
+                  end
+                  self.bg = '#220000'
+              end)
+              self:connect_signal('mouse::leave', function()
+                  if self.has_backup then self.bg = self.backup end
+              end)
+          end,
+        }
     }
 
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist {
         screen  = s,
-        filter  = awful.widget.tasklist.filter.currenttags,
-        buttons = tasklist_buttons
+        filter  = awful.widget.tasklist.filter.focused,
+        buttons = tasklist_buttons,
+        style = {
+            bg_focus = "transparent",
+        }
+    }
+
+    -- Create the wibox
+    s.mywibox = awful.wibar({
+        position = "top",
+        screen = s,
+        bg = "transparent",
+        height = 40,
+    })
+
+    -- Add widgets to the wibox
+    s.mywibox:setup {
+        layout = wibox.layout.align.horizontal,
+        {
+            widget = wibox.container.margin,
+            margins = 4,
+            {
+                widget = wibox.container.background,
+                bg = "#333",
+                shape = gears.shape.octogon,
+                {
+                    widget = wibox.container.margin,
+                    margins = 2,
+                    s.mytaglist,
+                }
+            }
+        },
+        {
+            widget = wibox.container.margin,
+            {
+                widget = wibox.container.background,
+                bg = "#333",
+                shape = gears.shape.octogon,
+                {
+                    widget = wibox.container.margin,
+                    margins = 4,
+                    {
+                        widget = wibox.layout.flex.horizontal,
+                        expand = "inside",
+                        {
+                            widget = wibox.container.place,
+                            halign = "left",
+                            s.mytasklist,
+                        },
+                        {
+                            widget = wibox.container.place,
+                            halign = "center",
+                            song_widget,
+                        },
+                        {
+                            widget = wibox.container.place,
+                            halign = "right",
+                            {
+                                widget = wibox.layout.align.horizontal,
+                                {
+                                    widget = wibox.layout.align.horizontal,
+                                    {
+                                        widget = wibox.container.margin,
+                                        left = 10,
+                                        wk_widget,
+                                    },
+                                    {
+                                        widget = wibox.container.margin,
+                                        left = 10,
+                                        ram_widget(),
+                                    },
+                                },
+                                {
+                                    widget = wibox.layout.align.horizontal,
+                                    {
+                                        widget = wibox.container.margin,
+                                        left = 10,
+                                        cpu_widget(),
+                                    },
+                                    {
+                                        widget = wibox.container.margin,
+                                        left = 10,
+                                        todo_widget(),
+                                    },
+                                    {
+                                        widget = wibox.container.margin,
+                                        left = 10,
+                                        volume_widget {
+                                            widget_type = "horizontal_bar",
+                                            with_icon = true,
+                                            mute_color = "#555",
+                                        },
+                                    },
+                                },
+                            }
+                        },
+                    }
+                }
+                -- awful.widget.watch('songdisplay', 15),
+            },
+            margins = 4,
+            left = 20,
+            right = 20,
+            opacity = 1,
+        },
+        {
+            widget = wibox.container.margin,
+            margins = 4,
+            {
+                widget = wibox.container.background,
+                bg = "#333",
+                shape = gears.shape.octogon,
+                {
+                    widget = wibox.container.margin,
+                    margins = 4,
+                    {
+                        widget = wibox.layout.align.horizontal,
+                        wibox.widget.systray(),
+                        mytextclock,
+                        s.mylayoutbox,
+                    }
+                }
+            },
+            left = 20,
+            opacity = 1,
+        },
+        spacing = 10,
     }
 end)
 -- }}}
@@ -227,7 +379,6 @@ globalkeys = gears.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
-
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
               {description = "swap with next client by index", group = "client"}),
@@ -249,20 +400,18 @@ globalkeys = gears.table.join(
         {description = "go back", group = "client"}),
 
     -- Standard program
-    awful.key({ modkey, "Shift" }, "Return", function () awful.spawn(terminal) end,
+    awful.key({ modkey, "Shift"   }, "Return", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
-    awful.key({ modkey }, "r", 
-        function()
-            awful.spawn("/home/peti/.config/awesome/down")
-            awesome.restart()
-        end,
+    awful.key({ modkey, "Shift" }, "r", function ()
+                    awesome.restart()
+                    awesome.spawn("~/.config/awesome/down")
+                end,
               {description = "reload awesome", group = "awesome"}),
-    awful.key({ modkey, "Shift"   }, "q", 
-        function() 
-            awful.spawn("/home/peti/.config/awesome/down")
-            awesome.quit()
-        end,
+    awful.key({ modkey, "Shift"   }, "q", awesome.quit,
               {description = "quit awesome", group = "awesome"}),
+
+    awful.key({ modkey, "Shift"   }, "s",     function () awful.spawn("systemctl suspend")    end,
+              {description = "sleep", group = "awesome"}),
 
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)          end,
               {description = "increase master width factor", group = "layout"}),
@@ -276,9 +425,9 @@ globalkeys = gears.table.join(
               {description = "increase the number of columns", group = "layout"}),
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1, nil, true)    end,
               {description = "decrease the number of columns", group = "layout"}),
-    awful.key({ modkey,           }, "z", function () awful.layout.inc( 1)                end,
+    awful.key({ modkey,           }, "space", function () awful.layout.inc( 1)                end,
               {description = "select next", group = "layout"}),
-    awful.key({ modkey, "Shift"   }, "t", function () awful.layout.inc(-1)                end,
+    awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"}),
 
     awful.key({ modkey, "Control" }, "n",
@@ -293,70 +442,26 @@ globalkeys = gears.table.join(
               end,
               {description = "restore minimized", group = "client"}),
 
-    -- Prompt
-    awful.key({ modkey }, "x",
-              function ()
-                  awful.prompt.run {
-                    prompt       = "Run Lua code: ",
-                    textbox      = awful.screen.focused().mypromptbox.widget,
-                    exe_callback = awful.util.eval,
-                    history_path = awful.util.get_cache_dir() .. "/history_eval"
-                  }
-              end,
-              {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "p", function() awful.spawn("dmenu_run") end,
               {description = "show the menubar", group = "launcher"}),
 
-    -- Music
-    awful.key({  }, "XF86AudioRaiseVolume", function() awful.spawn("amixer -D pulse sset Master 5%+") end,
-              {description = "Raise Volume", group = "audio_control"}),
+    -- Songcontrol
+    awful.key({ }, "XF86AudioPlay", function() awful.spawn("songcontrol playorload") end,
+              {description = "Toggle song playing", group = "songcontrol"}),
 
-    awful.key({  }, "XF86AudioLowerVolume", function() awful.spawn("amixer -D pulse sset Master 5%-") end,
-              {description = "Lower Volume", group = "audio_control"}),
+    awful.key({ "Control" }, "XF86AudioPlay", function() awful.spawn("songcontrol stop") end,
+              {description = "Stop song playing", group = "songcontrol"}),
 
-    awful.key({ "Control" }, "XF86AudioRaiseVolume", function() awful.spawn("songcontrol volume +5") end,
-              {description = "Raise Volume", group = "audio_control"}),
+    awful.key({ }, "XF86AudioPrev", function() awful.spawn("songcontrol prev") end,
+              {description = "Go to previous track", group = "songcontrol"}),
 
-    awful.key({ "Control" }, "XF86AudioLowerVolume", function() awful.spawn("songcontrol volume -5") end,
-              {description = "Lower Volume", group = "audio_control"}),
+    awful.key({ }, "XF86AudioNext", function() awful.spawn("songcontrol next") end,
+              {description = "Go to next track", group = "songcontrol"}),
 
-    awful.key({  }, "XF86AudioPlay", function() awful.spawn("songcontrol toggle random on") end,
-              {description = "Toggle Song Playback", group = "audio_control"}),
-
-    awful.key({ "Shift" }, "XF86AudioPlay", function() awful.spawn("songcontrol toggle random off") end,
-              {description = "Toggle Song Playback", group = "audio_control"}),
-
-    awful.key({ "Control" }, "XF86AudioPlay", function() awful.spawn("songcontrol clear") end,
-              {description = "Clear playlist", group = "audio_control"}),
-
-    awful.key({  }, "XF86AudioMute", function() awful.spawn("amixer -D pulse sset Master toggle") end,
-              {description = "Mute Audio", group = "audio_control"}),
-
-    awful.key({  }, "XF86AudioNext", function() awful.spawn("songcontrol next") end,
-              {description = "Go To Next Song", group = "audio_control"}),
-
-    awful.key({  }, "XF86AudioPrev", function() awful.spawn("songcontrol prev") end,
-              {description = "Go To Previous song", group = "audio_control"}),
-    awful.key({  }, "XF86Search", function() awful.spawn("songcontrol search") end,
-              {description = "Search for song or album", group = "audio_control"}),
-
-    -- Utils
-
-    awful.key({  }, "Print", function() awful.spawn([[sh -c 'maim -s /dev/stdout -f png -u -n 1 | xclip -se c -t image/png -i']]) end,
-              {description = "Take screenshot", group = "utils"}),
-    
-    awful.key({ modkey, "Control" }, "l", function() awful.spawn("dm-tool lock") end,
-              {description = "Lock Screen", group = "utils"}),
-
-    awful.key({ modkey, "Shift" }, "s", function() awful.spawn("systemctl suspend") end,
-              {description = "Lock Screen", group = "utils"}),
-
-    awful.key({ modkey }, "e", function() awful.spawn("emoji") end,
-              {description = "Write Emoji", group = "utils"}),
-
-    awful.key({ modkey, "Control" }, "e", function() awful.spawn("emoji copy") end,
-              {description = "Copy Emoji", group = "utils"})
+    -- Utilities
+    awful.key({ }, "Print", function() awful.spawn("screenshot") end,
+              {description = "Take screenshot", group = "utilities"})
 )
 
 clientkeys = gears.table.join(
@@ -501,6 +606,7 @@ awful.rules.rules = {
           "Kruler",
           "MessageWin",  -- kalarm.
           "Sxiv",
+          "Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
           "Wpa_gui",
           "veromix",
           "xtightvncviewer"},
@@ -516,15 +622,6 @@ awful.rules.rules = {
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
         }
       }, properties = { floating = true }},
-
-    -- Add titlebars to normal clients and dialogs
-    { rule_any = {type = { "normal", "dialog" }
-      }, properties = { titlebars_enabled = true }
-    },
-    {
-        rule_any = { class = {"Polybar"}},
-        properties = { focusable = false }
-    }
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
@@ -591,4 +688,6 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
-awful.spawn("/home/peti/.config/awesome/up")
+function update_song()
+    song_timer:emit_signal("timeout")
+end

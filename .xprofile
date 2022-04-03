@@ -5,6 +5,8 @@ export PATH=$PATH:/Projects/Contrib/dmenumoji/dmenu
 export PATH=$PATH:/home/peti/.local/npm-global/bin
 
 mopidy -q &
+songwatchchanges &
+
 export SUDO_ASKPASS="$HOME/.local/bin/dpass"
 
 eval $(gnome-keyring-daemon --start)
@@ -13,3 +15,10 @@ export SSH_AUTH_SOCK
 export npm_config_prefix="$HOME/.local/npm-global"
 
 fcitx5 &
+
+export GLFW_IM_MODULE=ibus
+
+picom --backend glx -b --mark-wmwin-focused --vsync \
+    --detect-transient --blur-method box --experimental-backends --blur-size 7 \
+    --blur-background --xrender-sync-fence  --xrender-sync-fence \
+    --blur-background-exclude "class_g='slop'" &

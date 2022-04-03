@@ -1,5 +1,6 @@
 local nvim_lsp = require('lspconfig')
 local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 local on_attach = function(_, bufnr)
   local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
@@ -33,7 +34,7 @@ local on_attach = function(_, bufnr)
 end
 
 local servers = { 'texlab', 'phpactor', 'solargraph', 'eslint', 'tsserver',
-'html', 'cssls', 'cmake' }
+'cssls', 'cmake' }
 
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
@@ -55,7 +56,6 @@ nvim_lsp.clangd.setup {
     filetypes = {"c", "cpp", "objc", "objcpp"},
   },
   capabilities = capabilities
-
 }
 
 nvim_lsp.sumneko_lua.setup{
@@ -70,12 +70,6 @@ nvim_lsp.sumneko_lua.setup{
   capabilities = capabilities
 }
 
-nvim_lsp.emmet_ls.setup{
-  on_attach = on_attach,
-  filetypes = {"html", "css", "html.handlebars"},
-  capabilities = capabilities
-}
-
 nvim_lsp.stylelint_lsp.setup{
   on_attach = on_attach,
   settings = {
@@ -85,6 +79,50 @@ nvim_lsp.stylelint_lsp.setup{
     }
   },
   capabilities = capabilities
+}
+
+nvim_lsp.html.setup{
+  on_attach = on_attach,
+  filetypes = {"html", "handlebars"},
+  capabilities = capabilities
+}
+
+local lspconfig = require'lspconfig'
+local configs = require'lspconfig.configs'
+
+if not configs.ls_emmet then
+  configs.ls_emmet = {
+    default_config = {
+      cmd = { 'ls_emmet', '--stdio' };
+      filetypes = {
+        'html',
+        'css',
+        'scss',
+        'javascriptreact',
+        'typescriptreact',
+        'haml',
+        'xml',
+        'xsl',
+        'pug',
+        'slim',
+        'sass',
+        'stylus',
+        'less',
+        'sss',
+        'hbs',
+        'handlebars',
+      };
+      root_dir = function(fname)
+        return vim.loop.cwd()
+      end;
+      settings = {};
+    };
+  }
+end
+
+lspconfig.ls_emmet.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
 }
 
 require('rust-tools').setup({})

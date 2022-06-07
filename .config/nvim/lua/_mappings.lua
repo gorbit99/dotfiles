@@ -18,4 +18,3 @@ local telescope_builtins = require'telescope.builtin'
 vimp.nnoremap({'silent'}, '<leader>orc', function ()
   telescope_builtins.find_files({cwd="~/.config/nvim/"})
 end)
-

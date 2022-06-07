@@ -1,12 +1,14 @@
+vim.cmd [[packadd packer.nvim]]
+
 require('_lualine')
 require('_telescope')
 require('_lspconfig')
 require('_cmp')
 require('_todocomments')
 require('_luasnip')
+require('_indent_blankline')
 require('_treesitter')
-
-vim.cmd [[packadd packer.nvim]]
+require('_autopairs')
 
 return require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
@@ -18,7 +20,7 @@ return require('packer').startup(function(use)
 
   use {
     'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate'
+    -- run = ':TSUpdate'
   }
 
   use {
@@ -61,4 +63,7 @@ return require('packer').startup(function(use)
   use 'AndrewRadev/tagalong.vim'
   use 'igankevich/mesonic'
   use 'svermeulen/vimpeccable'
+  use 'voldikss/vim-floaterm'
+  use 'lukas-reineke/indent-blankline.nvim'
+  use 'windwp/nvim-autopairs'
 end)

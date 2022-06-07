@@ -28,24 +28,12 @@ augroup Filetypes
     au FileType javascript set shiftwidth=2
     au FileType typescript set tabstop=2
     au FileType typescript set shiftwidth=2
+    
+    au FileType graphql set shiftwidth=2
+    au FileType graphql set tabstop=2
 
     au FileType lua set tabstop=2 shiftwidth=2
 augroup END
-
-function CtrlJTerm()
-    if bufexists("ctrlJTerm")
-        botright :sbuffer ctrlJTerm
-        normal i
-    else
-        :botright split
-        :term
-        :file ctrlJTerm
-        normal i
-    endif
-endfunction
-
-nnoremap <C-j> :call CtrlJTerm()<CR>
-tnoremap <C-j>  <C-\><C-n><C-w>c
 
 augroup lsp
     autocmd!
@@ -53,3 +41,13 @@ augroup lsp
     autocmd BufWritePre *.js,*.php,*.lua lua vim.lsp.buf.formatting_seq_sync()
     autocmd BufWritePre *.ts,*.js :EslintFixAll
 augroup END
+
+augroup floaterm
+    autocmd VimEnter * FloatermNew --silent
+augroup END
+
+nnoremap <silent> <leader>tt :FloatermToggle<CR><C-\><C-n>
+nnoremap <silent> <leader>to :FloatermNew<CR><C-\><C-n>
+nnoremap <silent> <leader>tp :FloatermNext<CR><C-\><C-n>
+nnoremap <silent> <leader>tn :FloatermPrev<CR><C-\><C-n>
+nnoremap <silent> <leader>tk :FloatermKill<CR>

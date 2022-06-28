@@ -1,26 +1,22 @@
 vim.cmd [[packadd packer.nvim]]
 
-require('_lualine')
-require('_telescope')
-require('_lspconfig')
-require('_cmp')
-require('_todocomments')
-require('_luasnip')
-require('_indent_blankline')
-require('_treesitter')
-require('_autopairs')
-
 return require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
 
   use {
     'nvim-lualine/lualine.nvim',
-    requires = { 'kyazdani42/nvim-web-devicons', opt = true }
+    requires = { 'kyazdani42/nvim-web-devicons', opt = true },
+    config = function()
+      require("_lualine")
+    end
   }
 
   use {
     'nvim-treesitter/nvim-treesitter',
-    -- run = ':TSUpdate'
+    run = ':TSUpdate',
+    config = function()
+      require('_treesitter')
+    end
   }
 
   use {
@@ -29,7 +25,10 @@ return require('packer').startup(function(use)
       'nvim-lua/plenary.nvim',
       'sharkdp/fd',
       'nvim-telescope/telescope-file-browser.nvim',
-    } }
+    } },
+    config = function()
+      require('_telescope')
+    end
   }
 
   use 'honza/vim-snippets'
@@ -39,14 +38,28 @@ return require('packer').startup(function(use)
   use 'vim-scripts/ReplaceWithRegister'
   use 'lervag/vimtex'
   use 'fladson/kitty'
-  use 'folke/todo-comments.nvim'
+  use {
+    'folke/todo-comments.nvim',
+    config = function() 
+      require('_todocomments')
+    end
+  }
   use 'ThePrimeagen/vim-be-good'
   use 'tpope/vim-repeat'
   use 'easymotion/vim-easymotion'
   use 'llathasa-veleth/vim-brainfuck'
-  use 'neovim/nvim-lspconfig'
-  use 'simrat39/rust-tools.nvim'
-
+  use {
+    'neovim/nvim-lspconfig',
+    config = function()
+      require("_lspconfig")
+    end
+  }
+  use {
+    'simrat39/rust-tools.nvim',
+    config = function()
+      require('_rusttools')
+    end
+  }
   use {
     'hrsh7th/nvim-cmp',
     requires = { {
@@ -56,7 +69,11 @@ return require('packer').startup(function(use)
       'hrsh7th/cmp-nvim-lsp',
       'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
-    } }
+    } },
+    config = function()
+      require("_cmp")
+      require('_luasnip')
+    end
   }
 
   use 'ap/vim-css-color'
@@ -64,6 +81,16 @@ return require('packer').startup(function(use)
   use 'igankevich/mesonic'
   use 'svermeulen/vimpeccable'
   use 'voldikss/vim-floaterm'
-  use 'lukas-reineke/indent-blankline.nvim'
-  use 'windwp/nvim-autopairs'
+  use {
+    'lukas-reineke/indent-blankline.nvim',
+    config = function()
+      require('_indent_blankline')
+    end
+  }
+  use {
+    'windwp/nvim-autopairs',
+    config = function() 
+      require('_autopairs')
+    end
+  }
 end)

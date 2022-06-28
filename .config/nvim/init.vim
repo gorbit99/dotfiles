@@ -37,9 +37,9 @@ augroup END
 
 augroup lsp
     autocmd!
-    autocmd BufWritePre *.h,*.c,*.cpp,*.ts,*.html,*.hbs,*.scss lua vim.lsp.buf.formatting_seq_sync()
-    autocmd BufWritePre *.js,*.php,*.lua lua vim.lsp.buf.formatting_seq_sync()
-    autocmd BufWritePre *.ts,*.js :EslintFixAll
+    autocmd BufWritePre *.h,*.c,*.cpp,*.ts,*.html,*.hbs,*.scss lua vim.lsp.buf.format()
+    autocmd BufWritePre *.js,*.php,*.lua,.*.rust lua vim.lsp.buf.format()
+    autocmd BufWritePre *.ts,*.tsx,*.js,*.jsx :EslintFixAll
 augroup END
 
 augroup floaterm

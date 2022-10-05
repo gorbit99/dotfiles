@@ -1,8 +1,8 @@
 local ensure_packer = function()
   local fn = vim.fn
-  local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+  local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
   if fn.empty(fn.glob(install_path)) > 0 then
-    fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+    fn.system({ 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path })
     vim.cmd [[packadd packer.nvim]]
     return true
   end
@@ -21,6 +21,8 @@ return require('packer').startup(function(use)
       'neovim/nvim-lspconfig',
       'simrat39/rust-tools.nvim',
       'mfussenegger/nvim-dap',
+      'jose-elias-alvarez/null-ls.nvim',
+      'MunifTanjim/prettier.nvim',
     },
     config = function()
       require('user.lsp')
@@ -64,10 +66,11 @@ return require('packer').startup(function(use)
 
   use {
     'nvim-telescope/telescope.nvim',
-    requires = { {'nvim-lua/plenary.nvim'} },
-    config = function ()
+    requires = { { 'nvim-lua/plenary.nvim' } },
+    config = function()
       require 'user.telescope'
     end,
+    after = 'project.nvim'
   }
 
   use {
@@ -80,7 +83,7 @@ return require('packer').startup(function(use)
   use {
     'kylechui/nvim-surround',
     config = function()
-      require("nvim-surround").setup{}
+      require("nvim-surround").setup {}
     end
   }
 
@@ -90,6 +93,22 @@ return require('packer').startup(function(use)
       require('Comment').setup()
     end
   }
+
+  use {
+    'ahmedkhalf/project.nvim',
+    config = function()
+      require('project_nvim').setup {}
+    end,
+  }
+
+  use {
+    'svermeulen/vimpeccable',
+    config = function()
+      require('user.vimpeccable')
+    end
+  }
+
+  use_rocks 'inspect'
 
   if packer_bootstrap then
     require('packer').sync()

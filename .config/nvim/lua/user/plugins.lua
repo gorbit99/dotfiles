@@ -10,6 +10,7 @@ local ensure_packer = function()
 end
 
 local packer_bootstrap = ensure_packer()
+local use_rocks = require('packer').use_rocks
 
 return require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
@@ -109,6 +110,14 @@ return require('packer').startup(function(use)
   }
 
   use_rocks 'inspect'
+
+  use {
+    '/Projects/NeovimPlugins/minimap',
+    rocks = { 'luautf8' },
+    config = function()
+      require('minimap').setup()
+    end
+  }
 
   if packer_bootstrap then
     require('packer').sync()
